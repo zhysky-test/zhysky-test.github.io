@@ -1,1 +1,547 @@
-<h1>hello</h1>
+<!DOCTYPE html>
+<html>
+<meta name="viewport" content="width=device-width">
+<meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1,user-scalable=no">
+
+<head>
+    <meta charset="utf-8">
+    <title>测试</title>
+</head>
+<style>
+    button {
+  margin: 0 20px 25px 0;
+  vertical-align: top;
+  width: 134px;
+}
+
+div#getUserMedia {
+  padding: 0 0 8px 0;
+}
+
+div.input {
+  display: inline-block;
+  margin: 0 4px 0 0;
+  vertical-align: top;
+  width: 310px;
+}
+
+div.input > div {
+  margin: 0 0 20px 0;
+  vertical-align: top;
+}
+
+div.output {
+  background-color: #eee;
+  display: inline-block;
+  font-family: 'Inconsolata', 'Courier New', monospace;
+  font-size: 0.9em;
+  padding: 10px 10px 10px 25px;
+  position: relative;
+  top: 10px;
+  white-space: pre;
+  width: 270px;
+}
+
+section#statistics div {
+  display: inline-block;
+  font-family: 'Inconsolata', 'Courier New', monospace;
+  vertical-align: top;
+  width: 308px;
+}
+
+section#statistics div#senderStats {
+  margin: 0 20px 0 0;
+}
+
+section#constraints > div {
+  margin: 0 0 20px 0;
+}
+
+section#video > div {
+  display: inline-block;
+  margin: 0 20px 0 0;
+  vertical-align: top;
+  width: calc(50% - 22px);
+}
+
+section#video > div div {
+  font-size: 0.9em;
+  margin: 0 0 0.5em 0;
+  width: 320px;
+}
+
+h2 {
+  margin: 0 0 1em 0;
+}
+
+section#constraints label {
+  display: inline-block;
+  width: 156px;
+}
+
+section {
+  margin: 0 0 20px 0;
+  padding: 0 0 15px 0;
+}
+
+section#video {
+  width: calc(100% + 20px);
+}
+
+video {
+  --width: 90%;
+  width: var(--width);
+  height: calc(var(--width) * 0.75);
+  margin: 0 0 10px 0;
+}
+
+@media screen and (max-width: 720px) {
+  button {
+    font-weight: 500;
+    height: 56px;
+    line-height: 1.3em;
+    width: 90px;
+  }
+
+  div#getUserMedia {
+    padding: 0 0 40px 0;
+  }
+
+  section#statistics div {
+    width: calc(50% - 14px);
+  }
+
+  video {
+    height: 96px;
+  }
+}
+</style>
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<body>
+    <!-- <b>
+        kysk-fdxy-app://native?type=camera&function=nativeCallJsCamera
+    </b>
+    <div><button type="button" onclick="jsCallNativeSchemeCamera()">拍照</button><b id="camera">结果</b><br /><img
+            width="100" height="100" id="cameraImg" />
+    </div>
+    <br>
+    <b>
+        kysk-fdxy-app://native?type=selectImage&function=nativeCallJsSelectImage&way=3&maxCount=3
+    </b>
+    <div><button type="button" onclick="jsCallNativeSchemeSelectImage()">选择图片</button><b id="selectImage">结果</b>
+    </div>
+    <br>
+    <b>
+        kysk-fdxy-app://native?type=reqpermission&function=nativeCallJsReqPermission&needRequest=false&permission=camera
+    </b>
+    <div><button type="button" onclick="jsCallNativeSchemeReqPermission()">权限判定</button><b id="reqPermission">结果</b>
+    </div>
+    <br> -->
+    <div>
+        <button id="getMedia">Get media</button>
+        <button id="connect" disabled>Connect</button>
+        <button id="hangup" disabled>Hang Up</button>
+    </div>
+
+
+    <section id="constraints">
+        <div id="getUserMedia">
+            <div class="input">
+                <h2>Camera constraints</h2>
+                <div id="minWidth">
+                    <label>Min width <span>300</span>px:</label>
+                    <input type="range" min="0" max="4096" value="300">
+                </div>
+                <div id="maxWidth">
+                    <label>Max width <span>640</span>px:</label>
+                    <input type="range" min="0" max="4096" value="640">
+                </div>
+                <div id="minHeight">
+                    <label>Min height <span>200</span>px:</label>
+                    <input type="range" min="0" max="2160" value="200">
+                </div>
+                <div id="maxHeight">
+                    <label>Max height <span>480</span>px:</label>
+                    <input type="range" min="0" max="2160" value="480">
+                </div>
+                <div id="minFramerate">
+                    <label>Min frameRate <span>0</span>fps:</label>
+                    <input type="range" min="0" max="60" value="0">
+                </div>
+                <div id="maxFramerate">
+                    <label>Max frameRate <span>0</span>fps:</label>
+                    <input type="range" min="0" max="60" value="0">
+                </div>
+            </div>
+            <div id="getUserMediaConstraints" class="output"></div>
+        </div>
+
+    </section>
+
+    <section id="video">
+        <div id="localVideo">
+            <video playsinline autoplay muted></video>
+            <div></div>
+        </div>
+        <div id="remoteVideo">
+            <video playsinline autoplay muted></video>
+            <div></div>
+            <div id="bitrate"></div>
+            <div id="peer"></div>
+        </div>
+    </section>
+
+    <section id="statistics">
+        <label>Update statistics every second</label>
+        <input type="checkbox" id="updateStats" checked>
+        <br>
+        <div id="senderStats"></div>
+        <div id="receiverStats"></div>
+    </section>
+
+
+
+
+    <script type="text/javascript">
+        // 拍照
+        function jsCallNativeSchemeCamera() {
+            location.href = "kysk-fdxy-app://native?type=camera&function=nativeCallJsCamera";
+        }
+        function nativeCallJsCamera(arguments) {
+            document.getElementById("camera").innerHTML = JSON.stringify(arguments);
+            var image = "data:image/png;base64," + arguments.image;
+            document.getElementById("cameraImg").src = image;
+        }
+        // 选择照片
+        function jsCallNativeSchemeSelectImage() {
+            location.href = "kysk-fdxy-app://native?type=selectImage&function=nativeCallJsSelectImage&way=3&maxCount=3";
+        }
+        function nativeCallJsSelectImage(arguments) {
+            document.getElementById("selectImage").innerHTML = JSON.stringify(arguments);
+        }
+        // 权限判定
+        function jsCallNativeSchemeReqPermission() {
+            location.href = "kysk-fdxy-app://native?type=reqpermission&function=nativeCallJsReqPermission&needRequest=true&permission=camera";
+        }
+        function nativeCallJsReqPermission(arguments) {
+            document.getElementById("reqPermission").innerHTML = arguments;
+        }
+    </script>
+
+
+    <script>
+
+        const getMediaButton = document.querySelector('button#getMedia');
+        const connectButton = document.querySelector('button#connect');
+        const hangupButton = document.querySelector('button#hangup');
+
+        getMediaButton.onclick = getMedia;
+        connectButton.onclick = createPeerConnection;
+        hangupButton.onclick = hangup;
+
+        const minWidthInput = document.querySelector('div#minWidth input');
+        const maxWidthInput = document.querySelector('div#maxWidth input');
+        const minHeightInput = document.querySelector('div#minHeight input');
+        const maxHeightInput = document.querySelector('div#maxHeight input');
+        const minFramerateInput = document.querySelector('div#minFramerate input');
+        const maxFramerateInput = document.querySelector('div#maxFramerate input');
+
+        minWidthInput.onchange = maxWidthInput.onchange =
+            minHeightInput.onchange = maxHeightInput.onchange =
+            minFramerateInput.onchange = maxFramerateInput.onchange = displayRangeValue;
+
+        const getUserMediaConstraintsDiv = document.querySelector('div#getUserMediaConstraints');
+        const bitrateDiv = document.querySelector('div#bitrate');
+        const peerDiv = document.querySelector('div#peer');
+        const senderStatsDiv = document.querySelector('div#senderStats');
+        const receiverStatsDiv = document.querySelector('div#receiverStats');
+
+        const localVideo = document.querySelector('div#localVideo video');
+        const remoteVideo = document.querySelector('div#remoteVideo video');
+        const localVideoStatsDiv = document.querySelector('div#localVideo div');
+        const remoteVideoStatsDiv = document.querySelector('div#remoteVideo div');
+
+        const updateStats = document.querySelector('input#updateStats');
+
+        let localPeerConnection;
+        let remotePeerConnection;
+        let localStream;
+        let bytesPrev;
+        let timestampPrev;
+
+        main();
+
+        function main() {
+            displayGetUserMediaConstraints();
+        }
+
+        function hangup() {
+            console.log('Ending call');
+            localPeerConnection.close();
+            remotePeerConnection.close();
+
+            // query stats one last time.
+            Promise
+                .all([
+                    remotePeerConnection
+                        .getStats(null)
+                        .then(showRemoteStats, err => console.log(err)),
+                    localPeerConnection
+                        .getStats(null)
+                        .then(showLocalStats, err => console.log(err))
+                ])
+                .then(() => {
+                    localPeerConnection = null;
+                    remotePeerConnection = null;
+                });
+
+            localStream.getTracks().forEach(track => track.stop());
+            localStream = null;
+
+            hangupButton.disabled = true;
+            getMediaButton.disabled = false;
+        }
+
+        function getMedia() {
+            getMediaButton.disabled = true;
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                const videoTracks = localStream.getVideoTracks();
+                for (let i = 0; i !== videoTracks.length; ++i) {
+                    videoTracks[i].stop();
+                }
+            }
+            navigator.mediaDevices.getUserMedia(getUserMediaConstraints())
+                .then(gotStream)
+                .catch(e => {
+                    const message = `getUserMedia error: ${e.name}\nThis may mean invalid constraints.`;
+                    alert(message);
+                    console.log(message);
+                    getMediaButton.disabled = false;
+                });
+        }
+
+        function gotStream(stream) {
+            connectButton.disabled = false;
+            console.log('GetUserMedia succeeded');
+            localStream = stream;
+            localVideo.srcObject = stream;
+        }
+
+        function getUserMediaConstraints() {
+            const constraints = {};
+            constraints.audio = true;
+            constraints.video = {};
+            if (minWidthInput.value !== '0') {
+                constraints.video.width = {};
+                constraints.video.width.min = minWidthInput.value;
+            }
+            if (maxWidthInput.value !== '0') {
+                constraints.video.width = constraints.video.width || {};
+                constraints.video.width.max = maxWidthInput.value;
+            }
+            if (minHeightInput.value !== '0') {
+                constraints.video.height = {};
+                constraints.video.height.min = minHeightInput.value;
+            }
+            if (maxHeightInput.value !== '0') {
+                constraints.video.height = constraints.video.height || {};
+                constraints.video.height.max = maxHeightInput.value;
+            }
+            if (minFramerateInput.value !== '0') {
+                constraints.video.frameRate = {};
+                constraints.video.frameRate.min = minFramerateInput.value;
+            }
+            if (maxFramerateInput.value !== '0') {
+                constraints.video.frameRate = constraints.video.frameRate || {};
+                constraints.video.frameRate.max = maxFramerateInput.value;
+            }
+
+            return constraints;
+        }
+
+        function displayGetUserMediaConstraints() {
+            const constraints = getUserMediaConstraints();
+            console.log('getUserMedia constraints', constraints);
+            getUserMediaConstraintsDiv.textContent = JSON.stringify(constraints, null, '    ');
+        }
+
+        function createPeerConnection() {
+            connectButton.disabled = true;
+            hangupButton.disabled = false;
+
+            bytesPrev = 0;
+            timestampPrev = 0;
+            localPeerConnection = new RTCPeerConnection(null);
+            remotePeerConnection = new RTCPeerConnection(null);
+            localStream.getTracks().forEach(track => localPeerConnection.addTrack(track, localStream));
+            console.log('localPeerConnection creating offer');
+            localPeerConnection.onnegotiationneeded = () => console.log('Negotiation needed - localPeerConnection');
+            remotePeerConnection.onnegotiationneeded = () => console.log('Negotiation needed - remotePeerConnection');
+            localPeerConnection.onicecandidate = e => {
+                console.log('Candidate localPeerConnection');
+                remotePeerConnection
+                    .addIceCandidate(e.candidate)
+                    .then(onAddIceCandidateSuccess, onAddIceCandidateError);
+            };
+            remotePeerConnection.onicecandidate = e => {
+                console.log('Candidate remotePeerConnection');
+                localPeerConnection
+                    .addIceCandidate(e.candidate)
+                    .then(onAddIceCandidateSuccess, onAddIceCandidateError);
+            };
+            remotePeerConnection.ontrack = e => {
+                if (remoteVideo.srcObject !== e.streams[0]) {
+                    console.log('remotePeerConnection got stream');
+                    remoteVideo.srcObject = e.streams[0];
+                }
+            };
+            localPeerConnection.createOffer().then(
+                desc => {
+                    console.log('localPeerConnection offering');
+                    localPeerConnection.setLocalDescription(desc);
+                    remotePeerConnection.setRemoteDescription(desc);
+                    remotePeerConnection.createAnswer().then(
+                        desc2 => {
+                            console.log('remotePeerConnection answering');
+                            remotePeerConnection.setLocalDescription(desc2);
+                            localPeerConnection.setRemoteDescription(desc2);
+                        },
+                        err => console.log(err)
+                    );
+                },
+                err => console.log(err)
+            );
+        }
+
+        function onAddIceCandidateSuccess() {
+            console.log('AddIceCandidate success.');
+        }
+
+        function onAddIceCandidateError(error) {
+            console.log(`Failed to add Ice Candidate: ${error.toString()}`);
+        }
+
+        function showRemoteStats(results) {
+            const statsString = dumpStats(results);
+            receiverStatsDiv.innerHTML = `<h2>Receiver stats</h2>${statsString}`;
+            // calculate video bitrate
+            results.forEach(report => {
+                const now = report.timestamp;
+
+                let bitrate;
+                if (report.type === 'inbound-rtp' && report.mediaType === 'video') {
+                    const bytes = report.bytesReceived;
+                    if (timestampPrev) {
+                        bitrate = 8 * (bytes - bytesPrev) / (now - timestampPrev);
+                        bitrate = Math.floor(bitrate);
+                    }
+                    bytesPrev = bytes;
+                    timestampPrev = now;
+                }
+                if (bitrate) {
+                    bitrate += ' kbits/sec';
+                    bitrateDiv.innerHTML = `<strong>Bitrate:</strong>${bitrate}`;
+                }
+            });
+
+            // figure out the peer's ip
+            let activeCandidatePair = null;
+            let remoteCandidate = null;
+
+            // Search for the candidate pair, spec-way first.
+            results.forEach(report => {
+                if (report.type === 'transport') {
+                    activeCandidatePair = results.get(report.selectedCandidatePairId);
+                }
+            });
+            // Fallback for Firefox.
+            if (!activeCandidatePair) {
+                results.forEach(report => {
+                    if (report.type === 'candidate-pair' && report.selected) {
+                        activeCandidatePair = report;
+                    }
+                });
+            }
+            if (activeCandidatePair && activeCandidatePair.remoteCandidateId) {
+                remoteCandidate = results.get(activeCandidatePair.remoteCandidateId);
+            }
+            if (remoteCandidate) {
+                if (remoteCandidate.address && remoteCandidate.port) {
+                    peerDiv.innerHTML = `<strong>Connected to:</strong>${remoteCandidate.address}:${remoteCandidate.port}`;
+                } else if (remoteCandidate.ip && remoteCandidate.port) {
+                    peerDiv.innerHTML = `<strong>Connected to:</strong>${remoteCandidate.ip}:${remoteCandidate.port}`;
+                } else if (remoteCandidate.ipAddress && remoteCandidate.portNumber) {
+                    // Fall back to old names.
+                    peerDiv.innerHTML = `<strong>Connected to:</strong>${remoteCandidate.ipAddress}:${remoteCandidate.portNumber}`;
+                }
+            }
+        }
+
+        function showLocalStats(results) {
+            const statsString = dumpStats(results);
+            senderStatsDiv.innerHTML = `<h2>Sender stats</h2>${statsString}`;
+        }
+
+        // Display statistics
+        setInterval(() => {
+            if (!updateStats.checked) {
+                return;
+            }
+            if (localPeerConnection && remotePeerConnection) {
+                remotePeerConnection
+                    .getStats(null)
+                    .then(showRemoteStats, err => console.log(err));
+                localPeerConnection
+                    .getStats(null)
+                    .then(showLocalStats, err => console.log(err));
+            } else {
+                console.log('Not connected yet');
+            }
+            // Collect some stats from the video tags.
+            if (localVideo.videoWidth) {
+                const width = localVideo.videoWidth;
+                const height = localVideo.videoHeight;
+                localVideoStatsDiv.innerHTML = `<strong>Video dimensions:</strong> ${width}x${height}px`;
+            }
+            if (remoteVideo.videoWidth) {
+                const rHeight = remoteVideo.videoHeight;
+                const rWidth = remoteVideo.videoWidth;
+                remoteVideoStatsDiv.innerHTML = `<strong>Video dimensions:</strong> ${rWidth}x${rHeight}px`;
+            }
+        }, 1000);
+
+        // Dumping a stats variable as a string.
+        // might be named toString?
+        function dumpStats(results) {
+            let statsString = '';
+            results.forEach(res => {
+                statsString += '<h3>Report type=';
+                statsString += res.type;
+                statsString += '</h3>\n';
+                statsString += `id ${res.id}<br>`;
+                statsString += `time ${res.timestamp}<br>`;
+                Object.keys(res).forEach(k => {
+                    if (k !== 'timestamp' && k !== 'type' && k !== 'id') {
+                        if (typeof res[k] === 'object') {
+                            statsString += `${k}: ${JSON.stringify(res[k])}<br>`;
+                        } else {
+                            statsString += `${k}: ${res[k]}<br>`;
+                        }
+                    }
+                });
+            });
+            return statsString;
+        }
+
+        // Utility to show the value of a range in a sibling span element
+        function displayRangeValue(e) {
+            const span = e.target.parentElement.querySelector('span');
+            span.textContent = e.target.value;
+            displayGetUserMediaConstraints();
+        }
+    </script>
+</body>
+
+</html>
