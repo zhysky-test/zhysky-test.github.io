@@ -129,7 +129,8 @@ video {
     <b>
         kysk-fdxy-app://native?type=microphone&function=nativeCallJsMicrophone
     </b>
-    <div><button type="button" onclick="jsCallNativeSchemeMicrophone()">麦克风</button><b id="microphone">结果</b><br />
+    <div><button type="button" onclick="jsCallNativeSchemeMicrophone0()">麦克风</button><b id="microphone0">结果</b><br />
+    <div><button type="button" onclick="jsCallNativeSchemeMicrophone1()">麦克风</button><b id="microphone1">结果</b><br />
     </div>
     <br>
     <b>
@@ -237,8 +238,11 @@ video {
             document.getElementById("cameraImg").src = image;
         }
         // 麦克风
-        function jsCallNativeSchemeMicrophone() {
-            location.href = "kysk-fdxy-app://native?type=permission&biz=microphone&action=1&function=nativeCallJsMicrophone";
+        function jsCallNativeSchemeMicrophone0() {
+            location.href = "kysk-fdxy-app://native?type=permission&biz=microphone&action=0";
+        }
+        function jsCallNativeSchemeMicrophone1() {
+            location.href = "kysk-fdxy-app://native?type=permission&biz=microphone&action=1";
         }
         function nativeCallJsMicrophone(arguments) {
             location.href = "kysk-fdxy-app://native?type=reqpermission&function=microphoneReqPermission&needRequest=true&permission=microphone";
@@ -256,7 +260,7 @@ video {
         }
         // 权限判定
         function jsCallNativeSchemeReqPermission() {
-            location.href = "kysk-fdxy-app://native?type=reqpermission&function=nativeCallJsReqPermission&needRequest=true&permission=camera";
+            location.href = "kysk-fdxy-app://native?type=reqpermission&function=nativeCallJsReqPermission&needRequest=true&permission=microphone";
         }
         function nativeCallJsReqPermission(arguments) {
             document.getElementById("reqPermission").innerHTML = arguments;
