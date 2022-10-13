@@ -127,6 +127,12 @@ video {
     </div>
     <br>
     <b>
+        kysk-fdxy-app://native?type=microphone&function=nativeCallJsMicrophone
+    </b>
+    <div><button type="button" onclick="jsCallNativeSchemeMicrophone()">麦克风</button><b id="microphone">结果</b><br />
+    </div>
+    <br>
+    <b>
         kysk-fdxy-app://native?type=selectImage&function=nativeCallJsSelectImage&way=3&maxCount=3
     </b>
     <div><button type="button" onclick="jsCallNativeSchemeSelectImage()">选择图片</button><b id="selectImage">结果</b>
@@ -230,6 +236,17 @@ video {
             var image = "data:image/png;base64," + arguments.image;
             document.getElementById("cameraImg").src = image;
         }
+        // 麦克风
+        function jsCallNativeSchemeMicrophone() {
+            location.href = "kysk-fdxy-app://native?type=microphone&function=nativeCallJsMicrophone";
+        }
+        function nativeCallJsMicrophone(arguments) {
+            location.href = "kysk-fdxy-app://native?type=reqpermission&function=microphoneReqPermission&needRequest=true&permission=microphone";
+        }
+        function microphoneReqPermission(arguments){
+            document.getElementById("microphone").innerHTML = arguments;
+        }
+
         // 选择照片
         function jsCallNativeSchemeSelectImage() {
             location.href = "kysk-fdxy-app://native?type=selectImage&function=nativeCallJsSelectImage&way=3&maxCount=3";
