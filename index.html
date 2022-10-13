@@ -215,40 +215,40 @@
 
     <script type="text/javascript">
       // 拍照
-    //   function jsCallNativeSchemeCamera() {
-    //     location.href =
-    //       'kysk-fdxy-app://native?type=camera&function=nativeCallJsCamera';
-    //   }
-    //   function nativeCallJsCamera(arguments) {
-    //     document.getElementById('camera').innerHTML = JSON.stringify(arguments);
-    //     var image = 'data:image/png;base64,' + arguments.image;
-    //     document.getElementById('cameraImg').src = image;
-    //   }
-    //   // 麦克风
-    //   function jsCallNativeSchemeMicrophone0() {
-    //     location.href =
-    //       'kysk-fdxy-app://native?type=permission&biz=microphone&action=0';
-    //   }
-    //   function jsCallNativeSchemeMicrophone1() {
-    //     location.href =
-    //       'kysk-fdxy-app://native?type=permission&biz=microphone&action=1';
-    //   }
-    //   function nativeCallJsMicrophone(arguments) {
-    //     location.href =
-    //       'kysk-fdxy-app://native?type=reqpermission&function=microphoneReqPermission&needRequest=true&permission=microphone';
-    //   }
-    //   function microphoneReqPermission(arguments) {
-    //     document.getElementById('microphone').innerHTML = arguments;
-    //   }
+      //   function jsCallNativeSchemeCamera() {
+      //     location.href =
+      //       'kysk-fdxy-app://native?type=camera&function=nativeCallJsCamera';
+      //   }
+      //   function nativeCallJsCamera(arguments) {
+      //     document.getElementById('camera').innerHTML = JSON.stringify(arguments);
+      //     var image = 'data:image/png;base64,' + arguments.image;
+      //     document.getElementById('cameraImg').src = image;
+      //   }
+      //   // 麦克风
+      //   function jsCallNativeSchemeMicrophone0() {
+      //     location.href =
+      //       'kysk-fdxy-app://native?type=permission&biz=microphone&action=0';
+      //   }
+      //   function jsCallNativeSchemeMicrophone1() {
+      //     location.href =
+      //       'kysk-fdxy-app://native?type=permission&biz=microphone&action=1';
+      //   }
+      //   function nativeCallJsMicrophone(arguments) {
+      //     location.href =
+      //       'kysk-fdxy-app://native?type=reqpermission&function=microphoneReqPermission&needRequest=true&permission=microphone';
+      //   }
+      //   function microphoneReqPermission(arguments) {
+      //     document.getElementById('microphone').innerHTML = arguments;
+      //   }
 
-    //   // 权限判定
-    //   function jsCallNativeSchemeReqPermission() {
-    //     location.href =
-    //       'kysk-fdxy-app://native?type=reqpermission&function=nativeCallJsReqPermission&needRequest=true&permission=microphone';
-    //   }
-    //   function nativeCallJsReqPermission(arguments) {
-    //     document.getElementById('reqPermission').innerHTML = arguments;
-    //   }
+      //   // 权限判定
+      //   function jsCallNativeSchemeReqPermission() {
+      //     location.href =
+      //       'kysk-fdxy-app://native?type=reqpermission&function=nativeCallJsReqPermission&needRequest=true&permission=microphone';
+      //   }
+      //   function nativeCallJsReqPermission(arguments) {
+      //     document.getElementById('reqPermission').innerHTML = arguments;
+      //   }
 
       //   function getPermission() {
       //     location.href =
@@ -279,6 +279,40 @@
     </script>
 
     <script>
+      let time;
+      function getMedia() {
+        // getMediaButton.disabled = true;
+        getPermission();
+        // alert(window.cameraRes)
+        // alert(window.microphoneRes)
+
+        time = setInterval(() => {
+          if (window.cameraRes && window.microphoneRes) {
+            clearInterval(time)
+            aaa();
+          }
+        }, 100);
+      }
+
+      function aaa() {
+        if (localStream) {
+          localStream.getTracks().forEach((track) => track.stop());
+          const videoTracks = localStream.getVideoTracks();
+          for (let i = 0; i !== videoTracks.length; ++i) {
+            videoTracks[i].stop();
+          }
+        }
+        navigator.mediaDevices
+          .getUserMedia(getUserMediaConstraints())
+          .then(gotStream)
+          .catch((e) => {
+            const message = `getUserMedia error: ${e.name}\nThis may mean invalid constraints.`;
+            alert(message);
+            console.log(message);
+            getMediaButton.disabled = false;
+          });
+      }
+
       const getMediaButton = document.querySelector('button#getMedia');
       const connectButton = document.querySelector('button#connect');
       const hangupButton = document.querySelector('button#hangup');
@@ -356,31 +390,6 @@
 
         hangupButton.disabled = true;
         getMediaButton.disabled = false;
-      }
-
-      function getMedia() {
-        // getMediaButton.disabled = true;
-        getPermission();
-        // alert(window.cameraRes)
-        // alert(window.microphoneRes)
-        if (window.cameraRes && window.microphoneRes) {
-          if (localStream) {
-            localStream.getTracks().forEach((track) => track.stop());
-            const videoTracks = localStream.getVideoTracks();
-            for (let i = 0; i !== videoTracks.length; ++i) {
-              videoTracks[i].stop();
-            }
-          }
-          navigator.mediaDevices
-            .getUserMedia(getUserMediaConstraints())
-            .then(gotStream)
-            .catch((e) => {
-              const message = `getUserMedia error: ${e.name}\nThis may mean invalid constraints.`;
-              alert(message);
-              console.log(message);
-              getMediaButton.disabled = false;
-            });
-        }
       }
 
       function gotStream(stream) {
