@@ -361,8 +361,8 @@
       function getMedia() {
         // getMediaButton.disabled = true;
         getPermission();
-        alert(window.cameraRes)
-        alert(window.microphoneRes)
+        // alert(window.cameraRes)
+        // alert(window.microphoneRes)
         if (window.cameraRes && window.microphoneRes) {
           if (localStream) {
             localStream.getTracks().forEach((track) => track.stop());
