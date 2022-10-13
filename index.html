@@ -238,7 +238,7 @@ video {
         }
         // 麦克风
         function jsCallNativeSchemeMicrophone() {
-            location.href = "kysk-fdxy-app://native?type=microphone&function=nativeCallJsMicrophone";
+            location.href = "kysk-fdxy-app://native?type=permission&biz=microphone&action=1&function=nativeCallJsMicrophone";
         }
         function nativeCallJsMicrophone(arguments) {
             location.href = "kysk-fdxy-app://native?type=reqpermission&function=microphoneReqPermission&needRequest=true&permission=microphone";
